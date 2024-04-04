@@ -18,8 +18,9 @@
     {
       "matches": ["<all_urls>"],
       "js": [
+        "algorithms.js",
         "content.js",
-        "texttospeech.js" 
+        "texttospeech.js"
       ]
     }
   ],
