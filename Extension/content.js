@@ -161,7 +161,13 @@ function activateTTSForWord(scrambledWord) {
 function scrambleText(text, algorithm, intensity) {
     return text.split(/\b/).map(word => {
         if (/^\w+$/.test(word)) {
-            return findPermutation(word, algorithm, intensity);
+            let scrambledWord = findPermutation(word, algorithm, intensity);
+            /*
+            if (scrambledWord !== word) {
+                console.log('Word: ',word,' Scrambling word:', scrambledWord);
+            }
+            */
+            return scrambledWord;
         } else {
             return word;
         }
@@ -196,8 +202,6 @@ function updateText(action, algorithm, intensity) {
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 
         'li', //'a', 
         'td', 'th',
-        'blockquote', 'cite', 
-        'article', '[role="article"]' 
     ];
 
     selectors.forEach(selector => {
@@ -218,6 +222,7 @@ function initializeContentScript() {
         }
     });
 }
+
 initializeContentScript();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

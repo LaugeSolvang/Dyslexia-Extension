@@ -43,11 +43,19 @@ const pageToSpeech = {
         if (!pageToSpeech.hasText()) {
             return;
         }
-        let processedText = pageToSpeech.data.highlightedText.split(' ').map(word => activateTTSForWord(word)).join(' ');
-    
-        pageToSpeech.data.highlightedText = processedText; 
+            
+        pageToSpeech.processText(); 
     
         await pageToSpeech.trySpeechApi();
+    },
+
+    processText: () => { 
+        let inputText = pageToSpeech.data.highlightedText;
+        let wordsArray = inputText.split(/(\W+)/).filter(part => part.length > 0);
+        let processedWordsArray = wordsArray.map(part => 
+          /^\w+$/.test(part) ? activateTTSForWord(part) : part
+        );
+        pageToSpeech.data.highlightedText = processedWordsArray.join('');
     },
 
     hasText: () => {
@@ -104,4 +112,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 pageToSpeech.addHotkeys();
-
