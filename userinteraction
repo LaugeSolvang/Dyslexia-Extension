@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+
+actor User
+participant "Popup/Options UI" as UI
+participant "Background Script" as BS
+participant "Content Script" as CS
+database "Precomputed Words Database" as PWD
+participant "TTS Module" as TTS
+
+User -> UI : Installs Extension
+User -> UI : Opens Popup/Options
+UI -> BS : Sends User Settings
+BS -> CS : Sends Command to Alter Text
+CS -> PWD : Fetches Word Transformations
+CS -> TTS : Triggers Text-to-Speech (if needed)
+UI -> User : Displays Educational Content (optional)
+
+@enduml

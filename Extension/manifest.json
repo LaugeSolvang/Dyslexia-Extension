@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Text Scrambler",
+  "version": "1.0",
+  "description": "Scrambles the text on web pages.",
+  "permissions": [
+    "activeTab",     
+    "storage",
+    "clipboardRead"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content.js",
+        "texttospeech.js" 
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dictionary.json", "neglect.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+  

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text Scrambler</title>
+  <script src="popup.js" defer></script>
+  <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+  <h3>Text Scrambler</h3>
+  <div>
+    <label>Algorithm:
+      <select name="algorithm">
+        <option value="letterIdentity">Letter Identity</option>
+        <option value="neglectDyslexia">Neglect Dyslexia</option>
+      </select>
+    </label>
+  </div>
+  <fieldset>
+    <legend>Intensity:</legend>
+    <label>
+      <input type="radio" name="intensity" value="Mild" checked> Mild
+    </label>
+    <label>
+      <input type="radio" name="intensity" value="Severe"> Severe
+    </label>
+  </fieldset>
+  <button id="scrambleButton">Scramble Text!</button>
+  <button id="restoreButton">Restore Text!</button>
+  <button id="speechButton">Text to Speech!</button>
+</body>
+</html>
