@@ -64,17 +64,42 @@ function scrambleMiddleLetters(word) {
 }
 
 function simulateNeglectDyslexia(word) {
+    // Check if the word is too short or not in the neglectDict
     if (word.length < 3 || !neglectDict[word]) {
         return word; 
+    }
+
+    if (Math.random() > 0.3) {
+        return word;
     }
 
     const possibleWords = neglectDict[word];
 
     if (possibleWords.length === 0) {
-        return word; 
+        return word;
     } else {
-        const randomIndex = Math.floor(Math.random() * possibleWords.length);
-        return possibleWords[randomIndex];
+        const totalWeight = possibleWords.reduce((total, word) => total + (wordsDict[word] || 1), 0);
+
+        const originalWordWeight = wordsDict[word] || 1;
+
+        // If the total weight of alternatives is less than 10% of the original word's weight, return the original word
+        if (totalWeight < 0.1 * originalWordWeight) {
+            return word;
+        }
+
+        let randomValue = Math.random() * totalWeight;
+        let selectedWord = word;
+
+        for (let i = 0; i < possibleWords.length; i++) {
+            const wordWeight = wordsDict[possibleWords[i]] || 1;
+            if (randomValue < wordWeight) {
+                selectedWord = possibleWords[i];
+                break;
+            }
+            randomValue -= wordWeight;
+        }
+
+        return selectedWord;
     }
 }
 
@@ -128,8 +153,8 @@ const algorithms = {
       Severe: [findWordWithDuplicatedLettersRemoved, findValidPermutation, scrambleMiddleLetters],
     },
     neglectDyslexia: {
-      Mild: [simulateFrquencyNeglectDyslexia],
-      Severe: [simulateNeglectDyslexia],
+      Mild: [simulateNeglectDyslexia],
+      Severe: [simulateFrquencyNeglectDyslexia],
     },
 };
 
@@ -142,7 +167,7 @@ function findPermutation(word, algorithmName, intensity) {
             const transformedWord = transformation(modifiedWord);
             if (transformedWord !== originalWord) {
                 modifiedWord = transformedWord;
-                break; // Ensure we exit the loop after the first change
+                break; 
             }
         }
     }
