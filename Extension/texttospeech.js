@@ -3,7 +3,6 @@ let isScrambled = false;
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "setIsScrambled") {
         isScrambled = request.isScrambled;
-        console.log('isScrambled:', isScrambled);
     }
 });
 
@@ -50,11 +49,6 @@ const pageToSpeech = {
 
     // Initialize the pageToSpeech when text is selected
     initialize: (event) => {
-        const existingButton = document.getElementById('speakButton');
-        if (existingButton) {
-            document.body.removeChild(existingButton);
-        }
-
         if (!isScrambled) {
             return;
         }
@@ -76,6 +70,12 @@ const pageToSpeech = {
                     pageToSpeech.trySpeechApi();
                     document.body.removeChild(btn); 
                 });
+            }
+        } else {
+            // Remove button if no text is selected
+            const existingButton = document.getElementById('speakButton');
+            if (existingButton) {
+                document.body.removeChild(existingButton);
             }
         }
     },
