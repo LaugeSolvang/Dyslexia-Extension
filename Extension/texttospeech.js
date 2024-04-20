@@ -79,17 +79,38 @@ const pageToSpeech = {
 
     trySpeechApi: async () => {
         if (pageToSpeech.data.speechInProgress) {
-            pageToSpeech.data.Audio.pause();
+            pageToSpeech.data.audio.pause();
         }
-        pageToSpeech.data.speechInProgress = true;
-        pageToSpeech.data.Audio = new Audio(`http://api.voicerss.org/?key=1f0f6e3bf29646baa68bfb9c1d27e10a&src=${encodeURIComponent(pageToSpeech.data.highlightedText)}`);
-        pageToSpeech.data.Audio.addEventListener("error", evt => {
-            alert("Sorry, we cannot produce speech right now. Try upgrading your browser!");
-        });
-        pageToSpeech.data.Audio.play();
-        pageToSpeech.data.Audio.onended = () => {
-            pageToSpeech.data.speechInProgress = false;
+        const apiUrl = 'https://voiceservice.vitec-mv.com/v1/Voice/Speak';
+        const payload = {
+            format: "mp3",
+            speed: 1.0,
+            text: pageToSpeech.data.highlightedText,
+            type: "Math",
+            voiceID: "mv_en_crb"
         };
+
+        pageToSpeech.data.speechInProgress = true;
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'SessionID': 'bb974b47-3a4f-49b9-aced-db7b533861c5'  
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            const audioUrl = `https://voiceservice.vitec-mv.com/${data.soundLink}`;
+            pageToSpeech.data.audio = new Audio(audioUrl);
+            pageToSpeech.data.audio.play();
+            pageToSpeech.data.audio.onended = () => {
+                pageToSpeech.data.speechInProgress = false;
+            };
+        } catch (error) {
+            console.error('Error with speech API:', error);
+            alert("Failed to fetch speech audio.");
+        }
     },
 
     addHotkeys: () => {
