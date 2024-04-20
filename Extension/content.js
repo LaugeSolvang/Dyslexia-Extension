@@ -252,7 +252,6 @@ initializeContentScript();
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'scramble' || request.action === 'restore') {
-      console.log(`Received request to ${request.action} text with algorithm: ${request.algorithm} and intensity: ${request.intensity}`);
       updateText(request.action, request.algorithm, request.intensity);
     }
 });
