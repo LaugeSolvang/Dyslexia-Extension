@@ -17,39 +17,38 @@ const pageToSpeech = {
         if (!pageToSpeech.hasText()) {
             return;
         }
-            
-        pageToSpeech.processText(); 
-    
+        
+        pageToSpeech.processText();
         await pageToSpeech.trySpeechApi();
     },
 
-    processText: () => { 
+    processText: () => {
         let inputText = pageToSpeech.data.highlightedText;
         let wordsArray = inputText.split(/(\W+)/).filter(part => part.length > 0);
         let processedWordsArray = wordsArray.map(part => 
-          /^\w+$/.test(part) ? activateTTSForWord(part) : part
+          /^\w+$/.test(part) ? part.toUpperCase() : part  // Example transformation, replace with your logic
         );
         pageToSpeech.data.highlightedText = processedWordsArray.join('');
     },
 
     hasText: () => {
-        pageToSpeech.data.highlightedText = window.getSelection().toString().trim(); // Trim to remove any extra whitespace
+        pageToSpeech.data.highlightedText = window.getSelection().toString().trim();
         return !!pageToSpeech.data.highlightedText;
     },
 
     trySpeechApi: async () => {
         if (speechSynthesis.speaking) {
-            speechSynthesis.cancel(); // Cancel any ongoing speech
+            speechSynthesis.cancel();
         }
+        await new Promise(resolve => setTimeout(resolve, 100));  // Wait to ensure all voices are loaded
         const utterance = new SpeechSynthesisUtterance(pageToSpeech.data.highlightedText);
-        utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith('en'));
+        utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith('en')) || speechSynthesis.getVoices()[0];
         utterance.onend = () => {
             console.log('Speech synthesis finished.');
             pageToSpeech.data.speechInProgress = false;
         };
         utterance.onerror = (event) => {
             console.error('Speech synthesis error:', event.error);
-            alert("An error occurred during speech output.");
         };
 
         speechSynthesis.speak(utterance);
@@ -71,31 +70,28 @@ const pageToSpeech = {
     },
 };
 
-// Initialize the pageToSpeech when text is selected and isScrambled is true
 document.addEventListener('mouseup', function(event) {
     if (!isScrambled) {
         return;
     }
     const selectedText = window.getSelection().toString().trim();
     if (selectedText.length > 0) {
-        // Create and display the button if not already present
+        const btn = document.getElementById('speakButton') || document.createElement('button');
+        btn.id = 'speakButton';
+        btn.textContent = 'Speak';
+        btn.style.position = 'absolute';
+        btn.style.left = `${event.pageX - 10}px`;
+        btn.style.top = `${event.pageY + 10}px`;
         if (!document.getElementById('speakButton')) {
-            const btn = document.createElement('button');
-            btn.id = 'speakButton';
-            btn.textContent = 'Speak';
-            btn.style.position = 'absolute';
-            btn.style.left = `${event.pageX - 10}px`;
-            btn.style.top = `${event.pageY + 10}px`;
             document.body.appendChild(btn);
-
-            btn.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent event propagation
-                pageToSpeech.initialize();
-                document.body.removeChild(btn);
-            });
         }
+
+        btn.onclick = function(event) {  // Changed to onclick for better handling
+            event.stopPropagation();
+            pageToSpeech.initialize();
+            document.body.removeChild(btn);
+        };
     } else {
-        // Remove button if no text is selected
         const existingButton = document.getElementById('speakButton');
         if (existingButton) {
             document.body.removeChild(existingButton);
