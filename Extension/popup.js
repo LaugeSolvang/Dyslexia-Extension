@@ -1,63 +1,72 @@
-function saveOptions() {
+function saveOptions(tabId) {
     const algorithm = document.querySelector('select[name="algorithm"]').value;
     const intensity = document.querySelector('input[name="intensity"]:checked').value;
+    const key = `options_${tabId}`;
 
-    chrome.storage.local.set({ algorithm, intensity }, () => {
+    chrome.storage.local.set({ [key]: { algorithm, intensity } }, () => {
         if (chrome.runtime.lastError) {
             console.error(`Error saving options: ${chrome.runtime.lastError}`);
         } else {
-            console.log('Options saved successfully', { algorithm, intensity });
+            console.log('Options saved successfully for tab', tabId, { algorithm, intensity });
         }
     });
 }
 
-function loadOptions() {
-    chrome.storage.local.get(['algorithm', 'intensity'], (result) => {
+function loadOptions(tabId) {
+    const key = `options_${tabId}`;
+    chrome.storage.local.get([key], (result) => {
         if (chrome.runtime.lastError) {
             console.error(`Error loading options: ${chrome.runtime.lastError}`);
-        } else {
-            console.log('Loaded options', result);
-            if (result.algorithm) {
-                document.querySelector('select[name="algorithm"]').value = result.algorithm;
-            }
-            if (result.intensity) {
-                document.querySelector(`input[name="intensity"][value="${result.intensity}"]`).checked = true;
-            }
+        } else if (result[key]) {
+            console.log('Loaded options for tab', tabId, result[key]);
+            document.querySelector('select[name="algorithm"]').value = result[key].algorithm;
+            document.querySelector(`input[name="intensity"][value="${result[key].intensity}"]`).checked = true;
         }
     });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    loadOptions();
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (tabs.length > 0) {
+            const tabId = tabs[0].id;
 
-    const algorithmSelect = document.querySelector('select[name="algorithm"]');
-    const intensityRadios = document.querySelectorAll('input[name="intensity"]');
+            loadOptions(tabId);
+            const isScrambledKey = `isScrambled_${tabId}`;
 
-    algorithmSelect.addEventListener('change', saveOptions);
-    intensityRadios.forEach(radio => radio.addEventListener('change', saveOptions));
-
-    const toggleButton = document.getElementById('toggleButton');
-
-    chrome.storage.local.get('isScrambled', (result) => {
-        toggleButton.textContent = result.isScrambled ? 'Restore Text!' : 'Scramble Text!';
-    });
-
-    toggleButton.addEventListener('click', function() {
-        chrome.storage.local.get('isScrambled', (result) => {
-            const isScrambled = !result.isScrambled;
-            chrome.storage.local.set({ isScrambled }, () => {
+            chrome.storage.local.get([isScrambledKey], (result) => {
+                const isScrambled = result[isScrambledKey] || false;
                 toggleButton.textContent = isScrambled ? 'Restore Text!' : 'Scramble Text!';
-                const selectedAlgorithm = algorithmSelect.value;
-                const selectedIntensity = Array.from(intensityRadios).find(radio => radio.checked).value;
+            });
+
+            const algorithmSelect = document.querySelector('select[name="algorithm"]');
+            const intensityRadios = document.querySelectorAll('input[name="intensity"]');
+
+            algorithmSelect.addEventListener('change', () => saveOptions(tabId));
+            intensityRadios.forEach(radio => radio.addEventListener('change', () => saveOptions(tabId)));
+
+            toggleButton.addEventListener('click', function() {
                 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                    if (isScrambled) {
-                        chrome.tabs.sendMessage(tabs[0].id, {action: "scramble", algorithm: selectedAlgorithm, intensity: selectedIntensity});
-                    } else {
-                        chrome.tabs.sendMessage(tabs[0].id, {action: "restore"});
+                    if (tabs.length > 0) {
+                        const tabId = tabs[0].id;
+                        const isScrambledKey = `isScrambled_${tabId}`;
+            
+                        chrome.storage.local.get([isScrambledKey], (result) => {
+                            const isScrambled = !(result[isScrambledKey] || false);
+                            chrome.storage.local.set({ [isScrambledKey]: isScrambled }, () => {
+                                toggleButton.textContent = isScrambled ? 'Restore Text!' : 'Scramble Text!';
+                                const selectedAlgorithm = algorithmSelect.value;
+                                const selectedIntensity = Array.from(intensityRadios).find(radio => radio.checked).value;
+            
+                                chrome.tabs.sendMessage(tabId, {
+                                    action: isScrambled ? "scramble" : "restore",
+                                    algorithm: selectedAlgorithm,
+                                    intensity: selectedIntensity
+                                });
+                            });
+                        });
                     }
-                    chrome.tabs.sendMessage(tabs[0].id, {action: "setIsScrambled", isScrambled: isScrambled});
                 });
             });
-        });
+        }
     });
 });
