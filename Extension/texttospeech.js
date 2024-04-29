@@ -38,39 +38,22 @@ const pageToSpeech = {
     },
 
     trySpeechApi: async () => {
-        if (pageToSpeech.data.speechInProgress) {
-            pageToSpeech.data.audio.pause();
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel(); // Cancel any ongoing speech
         }
-        const apiUrl = 'https://voiceservice.vitec-mv.com/v1/Voice/Speak';
-        const payload = {
-            format: "mp3",
-            speed: 1.0,
-            text: pageToSpeech.data.highlightedText,
-            type: "Math",
-            voiceID: "mv_en_crb"
+        const utterance = new SpeechSynthesisUtterance(pageToSpeech.data.highlightedText);
+        utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith('en'));
+        utterance.onend = () => {
+            console.log('Speech synthesis finished.');
+            pageToSpeech.data.speechInProgress = false;
+        };
+        utterance.onerror = (event) => {
+            console.error('Speech synthesis error:', event.error);
+            alert("An error occurred during speech output.");
         };
 
+        speechSynthesis.speak(utterance);
         pageToSpeech.data.speechInProgress = true;
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'SessionID': '3a836270-25cf-476a-ab6f-e7ae9ec50651'  
-                },
-                body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            const audioUrl = `https://voiceservice.vitec-mv.com/${data.soundLink}`;
-            pageToSpeech.data.audio = new Audio(audioUrl);
-            pageToSpeech.data.audio.play();
-            pageToSpeech.data.audio.onended = () => {
-                pageToSpeech.data.speechInProgress = false;
-            };
-        } catch (error) {
-            console.error('Error with speech API:', error);
-            alert("Failed to fetch speech audio.");
-        }
     },
 
     addHotkeys: () => {
