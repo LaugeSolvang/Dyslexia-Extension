@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+
+package "Chrome Extension" {
+    [Popup/Options UI] as UI
+    [Background Script] as BS
+    [Content Script] as CS
+    database "Precomputed Words Database" as PWD
+    [TTS Module] as TTS
+    [Educational Content Repository] as ECR
+}
+
+UI --> BS : User Preferences & Settings
+BS --> CS : Text Transformation Commands
+CS --> PWD : Fetch Word Variations
+CS --> TTS : Text-to-Speech for Difficult Texts
+UI --> ECR : Access Educational Content
+
+@enduml

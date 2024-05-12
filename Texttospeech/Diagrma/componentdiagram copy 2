@@ -1,0 +1,35 @@
+@startuml
+skinparam component {
+    BackgroundColor Snow
+    BorderColor Black
+    ArrowColor Black
+}
+
+package "Dyslexia Extension" {
+    component "Popup UI" as Popup
+
+    component "Background Script" as Background {
+    }
+    component "Content Scripts" as ContentScripts {
+        component "DOMManipulator " as Content {
+        }
+        component "Algorithms" as Algorithms
+        component "Text-to-Speech" as TTS
+    }
+    component "Data Storage" as DataStorage {
+        component "Word Dictionary" as Dict
+        component "Neglect Patterns" as Neglect
+    }
+}
+
+' Interactions
+Popup -down-> Background
+Popup -right-> Content 
+Content -up-> Background
+Content -right-> Algorithms
+TTS -left-> Popup
+
+Background -right-> Dict 
+Background -down-> Neglect 
+
+@enduml

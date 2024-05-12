@@ -1,0 +1,24 @@
+@startuml
+actor User
+entity "Popup" as Popup
+entity "Background Script" as Background
+entity "Content Script" as Content
+User -> Background : Open browser
+Background -> Background : Initialize dictionaries
+
+User -> Popup : Clicks extension icon
+Popup -> Background : Request options from storage
+Background -> Popup : Send options 
+Popup -> User : Display UI
+
+User -> Popup : Selects algorithm & intensity\nClicks "Scramble Text"
+Popup -> Background : Save options to storage
+
+Popup -> Content : Send scramble command
+Content -> Background : Request data
+Background -> Content : Send dictionaries
+
+Content -> Content : Apply algorithm & intensity
+
+Content -> User : Display scrambled text
+@enduml

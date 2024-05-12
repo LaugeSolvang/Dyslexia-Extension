@@ -1,0 +1,20 @@
+@startuml
+actor User
+entity "Text to speech" as T2S
+entity "Content Script" as Content
+
+User -> T2S : Highlights word or sentence
+T2S -> User : Display "Speak" button
+
+User -> T2S : Clicks "Speak" button
+T2S -> Content : Give prior text
+Content -> T2S : Prior text given
+
+T2S -> User : Play original text through TTS
+
+alt Text not scrambled or original mapping missing
+  User -> T2S : Highlights non-scrambled text
+  T2S -> User : "Speak" button does not appear
+end
+
+@enduml
