@@ -1,7 +1,7 @@
 let wordsDict = {};
 let pattern_dict = {};
 let neglectDict = {};
-let originalWordLookup = {};
+let originalWordLookup = new Map();
 
 function getPatternKey(word) {
     return word[0] + word.slice(1, -1).split('').sort().join('') + word[word.length - 1];
@@ -43,15 +43,16 @@ function findPermutation(word, algorithmName, intensity) {
             }
         }
     }
-
-    originalWordLookup[modifiedWord.toLowerCase()] = originalWord;
+    if (!originalWordLookup.has(modifiedWord.toLowerCase())) {
+        originalWordLookup.set(modifiedWord.toLowerCase(), originalWord);
+    }
 
     return applyOriginalCase(word, modifiedWord);
 }
 
 function activateTTSForWord(scrambledWord) {
-    const originalWord = originalWordLookup[scrambledWord.toLowerCase()] || scrambledWord;
-    return originalWord
+    const originalWord = originalWordLookup.get(scrambledWord.toLowerCase()) || scrambledWord;
+    return originalWord;
 }
 
 function scrambleText(text, algorithm, intensity) {
@@ -83,7 +84,7 @@ function processElement(element, action, algorithm, intensity) {
             element.nodeValue = scrambleText(element.nodeValue, algorithm, intensity);
         } else if (action === 'restore' && originalText) {
             element.nodeValue = originalText;
-            originalWordLookup = {};
+            originalWordLookup = new Map();
         }
     } else if (element.nodeType === 1) { 
         if (!['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION'].includes(element.tagName)) {
