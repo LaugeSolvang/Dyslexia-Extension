@@ -26,7 +26,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["dictionary.json", "neglect.json"],
+      "resources": ["dictionary.json", "neglect.json", "introduction-to-speech.png"],
       "matches": ["<all_urls>"]
     }
   ]

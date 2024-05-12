@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         algorithm: selectedAlgorithm,
                         intensity: selectedIntensity
                     });
+
+                    chrome.tabs.sendMessage(currentTabId, {action: "setIsScrambled", isScrambled: isScrambled});
                 });
             });
         });

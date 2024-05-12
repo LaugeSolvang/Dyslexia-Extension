@@ -50,6 +50,10 @@ function swapAdjacentLettersSometimes(word) {
 }
 
 function scrambleMiddleLetters(word) {
+    if (Math.random() > 0.4) {
+        return word;
+    }
+
     if (word.length > 5) {
         const first = word[0];
         const last = word[word.length - 1];
@@ -72,7 +76,7 @@ function simulateNeglectDyslexia(word) {
         return word; 
     }
 
-    if (Math.random() > 0.3) {
+    if (Math.random() > 0.15) {
         return word;
     }
 
@@ -100,15 +104,18 @@ function simulateNeglectDyslexia(word) {
                 break;
             }
             randomValue -= wordWeight;
-        }
-
+        } 
         return selectedWord;
     }
 }
 
 function simulateFrquencyNeglectDyslexia(word) {
-    if (word.length < 3 || !neglectDict[word]) {
+    if (word.length <= 3 || !neglectDict[word]) {
         return word; 
+    }
+
+    if (Math.random() > 0.4) {
+        return word;
     }
 
     const possibleWords = neglectDict[word];
