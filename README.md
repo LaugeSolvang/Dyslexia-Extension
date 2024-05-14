@@ -1,3 +1,4 @@
+Samtykke Erklæring: https://docs.google.com/document/d/1ACKJVHADpqroZGzsVwKFQAPgruGLUPozBTl5XDRxKP0/edit?usp=sharing
 Inset extension here chrome://extensions
 - Antarctica:
   - https://forms.gle/Fd1faSoe6cJyeCro7
