@@ -59,11 +59,6 @@ function scrambleText(text, algorithm, intensity) {
     return text.split(/\b/).map(word => {
         if (/^\w+$/.test(word)) {
             let scrambledWord = findPermutation(word, algorithm, intensity);
-            /*
-            if (scrambledWord !== word) {
-                console.log('Word: ',word,' Scrambling word:', scrambledWord);
-            }
-            */
             return scrambledWord;
         } else {
             return word;
