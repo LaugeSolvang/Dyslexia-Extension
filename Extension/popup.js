@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     toggleButton.addEventListener('click', function() {
+        const startTime = performance.now();  // Start the timer
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             const currentTabId = tabs[0].id;
             chrome.storage.local.get('scrambledTabs', (result) => {
@@ -66,8 +67,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         intensity: selectedIntensity
                     });
 
+                    // Listen for the completion message
+                    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+                        if (request.action === 'updateComplete') {
+                            const endTime = performance.now();  // Stop the timer
+                            const duration = endTime - startTime;
+                            console.log(`Text update completed in ${duration} milliseconds.`);
+                            chrome.runtime.onMessage.removeListener(arguments.callee);  // Remove the listener after completion
+                        }
+                    });
+
                     chrome.tabs.sendMessage(currentTabId, {action: "setIsScrambled", isScrambled: isScrambled});
                 });
+
             });
         });
     });

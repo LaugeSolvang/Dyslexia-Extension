@@ -103,6 +103,7 @@ function updateText(action, algorithm, intensity) {
             processElement(element, action, algorithm, intensity);
         });
     });    
+    chrome.runtime.sendMessage({ action: 'updateComplete' });
 }
 
 function initializeContentScript() {
